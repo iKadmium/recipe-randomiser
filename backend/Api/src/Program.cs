@@ -12,6 +12,11 @@ builder.Services.AddCors(options =>
         policyBuilder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
     });
 });
+builder.Services.AddSpaStaticFiles(configuration =>
+{
+    configuration.RootPath = "ClientApp";
+});
+
 
 var app = builder.Build();
 
@@ -23,10 +28,24 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseSpaStaticFiles();
+app.MapWhen(x => !x.Request.Path.Value.StartsWith("/api"), builder =>
+{
+    builder.UseSpa(spa =>
+    {
+        // To learn more about options for serving an Angular SPA from ASP.NET Core,
+        // see https://go.microsoft.com/fwlink/?linkid=864501
+        if (app.Environment.IsDevelopment())
+        {
+            spa.UseProxyToSpaDevelopmentServer("http://localhost:5173");
+        }
+    });
+});
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}"
 ).WithOpenApi();
+
 app.UseCors(); // Add this line to enable CORS
 app.Run();
