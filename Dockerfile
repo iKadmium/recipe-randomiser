@@ -5,6 +5,7 @@ RUN npm install
 RUN npm run build
 
 FROM mcr.microsoft.com/dotnet/sdk AS backend
+ENV DOTNET_NUGET_SIGNATURE_VERIFICATION=false
 WORKDIR /app
 COPY backend .
 RUN dotnet restore
