@@ -7,7 +7,7 @@
 </script>
 
 <script lang="ts">
-	import { ingredientsDataSource } from '$lib';
+	import { ingredientsDataSource, tagsDataSource } from '$lib';
 	import type { Database } from '$lib/models/database';
 	import type { Ingredient } from '$lib/models/ingredient';
 	import { Difficulty, type IngredientWithAmount, type Recipe } from '$lib/models/recipe';
@@ -91,7 +91,8 @@
 		recipe = recipe;
 	}
 
-	function handleNewTagAdd(tag: string) {
+	async function handleNewTagAdd(tag: string) {
+		await tagsDataSource.post({ name: tag });
 		$recipe.tags.push(tag);
 		recipe = recipe;
 	}
