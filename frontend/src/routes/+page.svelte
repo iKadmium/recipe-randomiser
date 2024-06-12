@@ -15,6 +15,7 @@
 	import AutoComplete from '../components/AutoComplete.svelte';
 	import type { PageData } from './$types';
 	import { writable } from 'svelte/store';
+	import CardDeck from '../components/CardDeck.svelte';
 
 	export let data: PageData;
 
@@ -77,7 +78,7 @@
 	<TabPane tabId="meals" tab="Meals" active>
 		<h2>Meals</h2>
 
-		<div class="card-stack">
+		<CardDeck>
 			{#each $recipes as item, index}
 				<Card class="full-height-card">
 					<CardHeader>
@@ -110,7 +111,7 @@
 					</Button>
 				</CardBody>
 			</Card>
-		</div>
+		</CardDeck>
 		<AutoComplete
 			noun="recipe"
 			options={Object.keys(data.recipes)}
@@ -128,14 +129,6 @@
 </TabContent>
 
 <style>
-	.card-stack {
-		display: grid;
-
-		grid-template-columns: 1fr 1fr 1fr;
-		gap: 1rem;
-		padding-bottom: 1rem;
-	}
-
 	:global(.full-size-button) {
 		width: 100%;
 		height: 100%;

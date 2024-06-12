@@ -3,6 +3,7 @@
 	import { Button } from '@sveltestrap/sveltestrap';
 	import RecipeListItem from '../../components/RecipeListItem.svelte';
 	import type { PageData } from './$types';
+	import CardDeck from '../../components/CardDeck.svelte';
 
 	async function handleDelete(key: string) {
 		await recipesDataSource.delete(key);
@@ -17,8 +18,8 @@
 
 <Button color="primary" href="/recipes/new">New Recipe</Button>
 
-<ul>
+<CardDeck>
 	{#each Object.entries(data) as [key, recipe]}
 		<RecipeListItem {recipe} {key} on:delete={() => handleDelete(key)} />
 	{/each}
-</ul>
+</CardDeck>
