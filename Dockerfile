@@ -4,7 +4,7 @@ COPY frontend .
 RUN npm install
 RUN npm run build
 
-FROM mcr.microsoft.com/dotnet/sdk AS backend
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS backend
 ENV DOTNET_NUGET_SIGNATURE_VERIFICATION=false
 WORKDIR /app
 COPY backend .
