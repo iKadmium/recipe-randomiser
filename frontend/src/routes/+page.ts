@@ -6,3 +6,7 @@ export const load: PageLoad = async ({ fetch }) => {
 	const recipes = await recipesDataSource.getAll(fetch);
 	return { ingredients, recipes };
 };
+
+export interface Suggestion {
+	recipe: string;
+}

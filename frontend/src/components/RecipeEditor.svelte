@@ -7,30 +7,34 @@
 </script>
 
 <script lang="ts">
+	import { ingredientsDataSource } from '$lib';
 	import type { Database } from '$lib/models/database';
 	import type { Ingredient } from '$lib/models/ingredient';
-	import type { IngredientWithAmount, Recipe } from '$lib/models/recipe';
-	import { Button, Form, FormGroup, Icon, Input } from '@sveltestrap/sveltestrap';
+	import { Difficulty, type IngredientWithAmount, type Recipe } from '$lib/models/recipe';
+	import type { Tag } from '$lib/models/tag';
+	import { Button, Form, FormGroup, Icon, Input, Modal, Table } from '@sveltestrap/sveltestrap';
 	import { createEventDispatcher } from 'svelte';
 	import type { Writable } from 'svelte/store';
-	import IngredientSearcher from './IngredientSearcher.svelte';
+	import AutoComplete from './AutoComplete.svelte';
 	export let recipe: Writable<Recipe>;
 	export let ingredients: Database<Ingredient>;
+	export let tags: Database<Tag>;
 
 	const dispatch = createEventDispatcher<RecipeEditorEvents>();
 
-	function handleAddExistingIngredient(key: string, amount: number) {
-		$recipe.ingredients.push({ ingredient: key, amount });
-		recipe = recipe;
+	let isModalOpen = false;
+	let amountInputRef: HTMLInputElement;
+	let activeIngredient: { name: string; new: boolean } | null = null;
+
+	function openModal(ingredient: typeof activeIngredient) {
+		isModalOpen = true;
+		activeIngredient = ingredient;
+		window.setTimeout(() => {
+			amountInputRef.focus();
+		});
 	}
 
-	function handleAddNewIngredient(ingredient: Ingredient, amount: number) {
-		ingredients[ingredient.name] = ingredient;
-		$recipe.ingredients.push({ ingredient: ingredient.name, amount });
-		recipe = recipe;
-	}
-
-	function handleDeleteClick(ingredientAndAmount: IngredientWithAmount) {
+	function handleDeleteIngredientClick(ingredientAndAmount: IngredientWithAmount) {
 		const index = $recipe.ingredients.indexOf(ingredientAndAmount);
 		$recipe.ingredients.splice(index, 1);
 		recipe = recipe;
@@ -38,6 +42,64 @@
 
 	function handleSave() {
 		dispatch('save', { recipe: $recipe });
+	}
+
+	function handleAmountInput(event: KeyboardEvent) {
+		switch (event.key) {
+			case 'Escape':
+				handleAmountCancel();
+				break;
+			case 'Enter':
+				handleAmountSubmit();
+				break;
+		}
+	}
+
+	function handleAmountCancel(event?: MouseEvent) {
+		isModalOpen = false;
+	}
+
+	async function handleAmountSubmit(event?: MouseEvent) {
+		if (!activeIngredient) {
+			return;
+		}
+
+		let amount = parseInt(amountInputRef.value);
+		if (!(amount > 0)) {
+			amount = 1;
+		}
+
+		if (activeIngredient.new) {
+			const ingredient: Ingredient = {
+				name: activeIngredient.name,
+				unit: 'things'
+			};
+
+			await ingredientsDataSource.post(ingredient);
+		}
+		$recipe.ingredients.push({
+			amount,
+			ingredient: activeIngredient.name
+		});
+		amountInputRef.value = '';
+		recipe = recipe;
+		isModalOpen = false;
+	}
+
+	function handleExistingTagAdd(tag: string) {
+		$recipe.tags.push(tag);
+		recipe = recipe;
+	}
+
+	function handleNewTagAdd(tag: string) {
+		$recipe.tags.push(tag);
+		recipe = recipe;
+	}
+
+	function handleDeleteTagClick(tag: string) {
+		const index = $recipe.tags.indexOf(tag);
+		$recipe.tags.splice(index, 1);
+		recipe = recipe;
 	}
 </script>
 
@@ -50,9 +112,42 @@
 		<Input placeholder="Priority" type="number" bind:value={$recipe.priority} min={1} max={5} />
 	</FormGroup>
 
+	<FormGroup label="Difficulty" floating>
+		<Input type="select" bind:value={$recipe.difficulty}>
+			<option value={Difficulty.Easy}>Easy</option>
+			<option value={Difficulty.Medium}>Medium</option>
+			<option value={Difficulty.Hard}>Hard</option>
+		</Input>
+	</FormGroup>
+
+	<h2>Tags</h2>
+	<Table>
+		<tbody>
+			{#each $recipe.tags as tag}
+				<tr>
+					<td>{tag}</td>
+					<td>
+						<Button color="danger" on:click={(event) => handleDeleteTagClick(tag)}>
+							<Icon name="trash" />
+						</Button>
+					</td>
+				</tr>
+			{/each}
+		</tbody>
+	</Table>
+
+	<AutoComplete
+		noun="tag"
+		allowAdd
+		options={Object.keys(tags)}
+		excludedOptions={$recipe.tags}
+		on:existing={(item) => handleExistingTagAdd(item.detail)}
+		on:new={(item) => handleNewTagAdd(item.detail)}
+	/>
+
 	<h2>Ingredients</h2>
 
-	<table class="ingredients">
+	<Table>
 		<thead>
 			<th>Amount</th>
 			<th>Item</th>
@@ -63,31 +158,39 @@
 					<td>{ingredientAndAmount.amount}</td>
 					<td>{ingredientAndAmount.ingredient}</td>
 					<td>
-						<Button color="danger" on:click={(event) => handleDeleteClick(ingredientAndAmount)}>
+						<Button
+							color="danger"
+							on:click={(event) => handleDeleteIngredientClick(ingredientAndAmount)}
+						>
 							<Icon name="trash" />
 						</Button>
 					</td>
 				</tr>
 			{/each}
 		</tbody>
-	</table>
+	</Table>
 
-	<IngredientSearcher
-		{ingredients}
-		existingIngredients={$recipe.ingredients.map((x) => x.ingredient)}
-		on:existing={(item) => handleAddExistingIngredient(item.detail.key, item.detail.amount)}
-		on:new={(item) => handleAddNewIngredient(item.detail.ingredient, item.detail.amount)}
+	<AutoComplete
+		options={Object.keys(ingredients)}
+		allowAdd
+		noun="ingredient"
+		excludedOptions={$recipe.ingredients.map((x) => x.ingredient)}
+		on:existing={(item) => openModal({ name: item.detail, new: false })}
+		on:new={(item) => openModal({ name: item.detail, new: true })}
 	/>
 
 	<Button color="primary" on:click={handleSave}>Save</Button>
 </Form>
 
-<style>
-	.ingredients td {
-		padding: 0 1rem;
-	}
-
-	.ingredients th {
-		padding: 0 1rem;
-	}
-</style>
+<Modal isOpen={isModalOpen}>
+	<FormGroup floating label="Amount">
+		<input
+			class="form-control"
+			type="number"
+			on:keydown={handleAmountInput}
+			bind:this={amountInputRef}
+		/>
+	</FormGroup>
+	<Button color="primary" on:click={handleAmountSubmit}>OK</Button>
+	<Button type="cancel" on:click={handleAmountCancel}>Cancel</Button>
+</Modal>

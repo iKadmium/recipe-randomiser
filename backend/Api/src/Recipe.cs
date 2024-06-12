@@ -98,6 +98,6 @@ namespace RecipeRandomiser.Api.Controllers
         }
     }
 
-    public record Recipe(string Name, List<IngredientWithAmount> Ingredients, uint Priority);
+    public record Recipe(string Name, List<IngredientWithAmount> Ingredients, uint Priority, uint Difficulty, List<string> Tags);
     public record IngredientWithAmount(string Ingredient, decimal Amount);
 }

@@ -18,6 +18,7 @@
 <h1>Recipe Editor</h1>
 <RecipeEditor
 	{recipe}
+	tags={data.tags}
 	ingredients={data.ingredients}
 	on:save={(event) => handleSave(event.detail.recipe)}
 />

@@ -1,7 +1,10 @@
-import { ingredientsDataSource, recipesDataSource } from '$lib';
+import { ingredientsDataSource, tagsDataSource } from '$lib';
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = async ({ fetch }) => {
-	const ingredients = await ingredientsDataSource.getAll(fetch);
-	return ingredients;
+	const [ingredients, tags] = await Promise.all([
+		ingredientsDataSource.getAll(fetch),
+		tagsDataSource.getAll(fetch)
+	]);
+	return { ingredients, tags };
 };
