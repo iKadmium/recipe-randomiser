@@ -1,4 +1,5 @@
 import { ingredientsDataSource, recipesDataSource } from '$lib';
+import type { IngredientWithAmount } from '$lib/models/recipe';
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = async ({ fetch }) => {
@@ -9,4 +10,8 @@ export const load: PageLoad = async ({ fetch }) => {
 
 export interface Suggestion {
 	recipe: string;
+}
+
+export interface SelectableIngredientWithAmount extends IngredientWithAmount {
+	selected: boolean;
 }

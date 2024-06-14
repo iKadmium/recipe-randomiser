@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { Difficulty, type IngredientWithAmount, type Recipe } from '$lib/models/recipe';
+	import { Difficulty, type Recipe } from '$lib/models/recipe';
 	import {
 		Button,
+		ButtonGroup,
 		Card,
 		CardBody,
 		CardFooter,
@@ -9,18 +10,20 @@
 		CardText,
 		CardTitle,
 		Icon,
+		Input,
 		TabContent,
 		TabPane
 	} from '@sveltestrap/sveltestrap';
-	import AutoComplete from '../components/AutoComplete.svelte';
-	import type { PageData } from './$types';
 	import { writable } from 'svelte/store';
+	import AutoComplete from '../components/AutoComplete.svelte';
 	import CardDeck from '../components/CardDeck.svelte';
+	import type { PageData } from './$types';
+	import type { SelectableIngredientWithAmount } from './+page';
 
 	export let data: PageData;
 
 	let recipes = writable<Recipe[]>([]);
-	let ingredients: IngredientWithAmount[] = [];
+	let ingredients: SelectableIngredientWithAmount[] = [];
 
 	recipes.subscribe((value) => calculateIngredients());
 
@@ -45,7 +48,8 @@
 					.flatMap((recipe) => recipe.ingredients)
 					.filter((ingredientWithAmount) => ingredientWithAmount.ingredient === x)
 					.map((ingredient) => ingredient.amount)
-			)
+			),
+			selected: false
 		}));
 	}
 
@@ -69,6 +73,14 @@
 		const newRecipes = [...$recipes];
 		newRecipes.splice(index, 1);
 		recipes.set(newRecipes);
+	}
+
+	function getIngredientLabel(ingredient: SelectableIngredientWithAmount) {
+		if (ingredient.amount > 1) {
+			return `${ingredient.amount}x ${ingredient.ingredient}`;
+		} else {
+			return ingredient.ingredient;
+		}
 	}
 </script>
 
@@ -120,9 +132,10 @@
 	</TabPane>
 	<TabPane tabId="ingredients" tab="Shopping List">
 		<h2>Shopping List</h2>
-		<ul>
+
+		<ul class="ingredient-list">
 			{#each ingredients as ingredient}
-				<li>{ingredient.ingredient} - {ingredient.amount}</li>
+				<li>{getIngredientLabel(ingredient)}</li>
 			{/each}
 		</ul>
 	</TabPane>
@@ -142,5 +155,9 @@
 
 	:global(.big-icon) {
 		font-size: 64px;
+	}
+
+	.ingredient-list {
+		list-style-type: none;
 	}
 </style>
