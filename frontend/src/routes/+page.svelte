@@ -82,6 +82,22 @@
 			return ingredient.ingredient;
 		}
 	}
+
+	async function copyToClipboard() {
+		const selected = ingredients
+			.filter((x) => x.selected)
+			.map((x) => getIngredientLabel(x))
+			.reduce((previous, current) => `${previous}\n${current}`);
+		await navigator.clipboard.writeText(selected);
+	}
+
+	function selectAll() {
+		const deselect = ingredients.every((x) => x.selected);
+		for (const ingredient of ingredients) {
+			ingredient.selected = !deselect;
+		}
+		ingredients = ingredients;
+	}
 </script>
 
 <h1>Meal generator</h1>
@@ -135,9 +151,26 @@
 
 		<ul class="ingredient-list">
 			{#each ingredients as ingredient}
-				<li>{getIngredientLabel(ingredient)}</li>
+				<li>
+					<Input
+						type="checkbox"
+						bind:checked={ingredient.selected}
+						label={getIngredientLabel(ingredient)}
+					/>
+				</li>
 			{/each}
 		</ul>
+		<Button color="primary" on:click={() => copyToClipboard()}>
+			<Icon name="copy" />
+			Copy selected
+		</Button>
+		<Button color="secondary" on:click={() => selectAll()}>
+			{#if ingredients.every((x) => x.selected)}
+				Select None
+			{:else}
+				Select All
+			{/if}
+		</Button>
 	</TabPane>
 </TabContent>
 
