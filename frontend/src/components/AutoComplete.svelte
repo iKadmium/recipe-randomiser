@@ -50,20 +50,25 @@
 				event.preventDefault();
 				break;
 			case 'Enter':
-				if (selectedIndex === suggestions.length) {
-					dispatch('new', searchString);
-				} else {
-					const item = suggestions[selectedIndex];
-					dispatch('existing', item);
-				}
-				suggestions = [];
-				searchString = '';
+				selectItem(selectedIndex);
 				event.preventDefault();
 				break;
 		}
 	}
 
+	function selectItem(index: number) {
+		if (selectedIndex === suggestions.length) {
+			dispatch('new', searchString);
+		} else {
+			const item = suggestions[selectedIndex];
+			dispatch('existing', item);
+		}
+		suggestions = [];
+		searchString = '';
+	}
+
 	let nameInputRef: HTMLInputElement;
+	let nameGroupInputRef: any;
 </script>
 
 <FormGroup>
@@ -83,12 +88,17 @@
 	{#if searchString.length > 0}
 		<div class="suggestion-list light" style={`width: ${nameInputRef.clientWidth}px`}>
 			{#each suggestions as key, index}
-				<AutoCompleteSuggestion title={key} selected={selectedIndex === index} />
+				<AutoCompleteSuggestion
+					title={key}
+					selected={selectedIndex === index}
+					on:click={() => selectItem(index)}
+				/>
 			{/each}
 			{#if allowAdd}
 				<AutoCompleteSuggestion
 					title={`Add new ${noun} ${searchString}...`}
 					selected={selectedIndex === Object.entries(suggestions).length}
+					on:click={() => selectItem(Object.entries(suggestions).length)}
 				/>
 			{/if}
 		</div>
