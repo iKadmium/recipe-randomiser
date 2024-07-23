@@ -57,10 +57,10 @@
 	}
 
 	function selectItem(index: number) {
-		if (selectedIndex === suggestions.length) {
+		if (index === suggestions.length) {
 			dispatch('new', searchString);
 		} else {
-			const item = suggestions[selectedIndex];
+			const item = suggestions[index];
 			dispatch('existing', item);
 		}
 		suggestions = [];
