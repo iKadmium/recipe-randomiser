@@ -19,11 +19,13 @@
 	import CardDeck from '../components/CardDeck.svelte';
 	import type { PageData } from './$types';
 	import type { SelectableIngredientWithAmount } from './+page';
+	import { addToast } from '$lib/toasts';
 
 	export let data: PageData;
 
 	let recipes = writable<Recipe[]>([]);
 	let ingredients: SelectableIngredientWithAmount[] = [];
+	let preText = '';
 
 	recipes.subscribe((value) => calculateIngredients());
 
@@ -88,7 +90,15 @@
 			.filter((x) => x.selected)
 			.map((x) => getIngredientLabel(x))
 			.reduce((previous, current) => `${previous}\n${current}`);
-		await navigator.clipboard.writeText(selected);
+		if (navigator.clipboard) {
+			await navigator.clipboard.writeText(selected);
+			addToast({
+				type: 'success',
+				message: 'Copied to clipboard'
+			});
+		} else {
+			preText = selected;
+		}
 	}
 
 	function selectAll() {
@@ -171,26 +181,16 @@
 				Select All
 			{/if}
 		</Button>
+		<pre>{preText}</pre>
 	</TabPane>
 </TabContent>
 
 <style>
-	:global(.full-size-button) {
-		width: 100%;
-		height: 100%;
-		border: none;
-		background: none;
-	}
-
-	:global(.full-height-card) {
-		min-height: 12rem;
-	}
-
-	:global(.big-icon) {
-		font-size: 64px;
-	}
-
 	.ingredient-list {
 		list-style-type: none;
+	}
+
+	:global(body) {
+		min-height: 100vh;
 	}
 </style>
