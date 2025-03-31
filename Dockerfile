@@ -1,19 +1,16 @@
-FROM node as frontend
+FROM oven/bun:1 as builder
 WORKDIR /app
-COPY frontend .
-RUN npm install
-RUN npm run build
 
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS backend
-ENV DOTNET_NUGET_SIGNATURE_VERIFICATION=false
-WORKDIR /app
-COPY backend .
-RUN dotnet restore
-RUN dotnet publish -c Release
+COPY package.json bun.lockb ./
+RUN bun install
 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
+COPY . .
+RUN bun run build
+
+FROM oven/bun:1
 WORKDIR /app
-COPY --from=backend /app/Api/bin/Release/net8.0/publish .
-COPY --from=frontend /app/build ./ClientApp
-EXPOSE 5000
-ENTRYPOINT ["dotnet", "Api.dll"]
+COPY --from=builder /app/build ./
+RUN bun install
+RUN mkdir data
+
+ENTRYPOINT ["bun", "start"]
