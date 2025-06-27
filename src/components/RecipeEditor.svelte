@@ -12,7 +12,16 @@
 	import type { Ingredient } from '$lib/models/ingredient';
 	import { Difficulty, type IngredientWithAmount, type Recipe } from '$lib/models/recipe';
 	import type { Tag } from '$lib/models/tag';
-	import { Button, Form, FormGroup, Icon, Input, Modal, Table } from '@sveltestrap/sveltestrap';
+	import {
+		Button,
+		Form,
+		FormGroup,
+		Icon,
+		Input,
+		Label,
+		Modal,
+		Table
+	} from '@sveltestrap/sveltestrap';
 	import AutoComplete from './AutoComplete.svelte';
 
 	let {
@@ -27,6 +36,7 @@
 	let isModalOpen = $state(false);
 	let amountInputRef: HTMLInputElement | null = $state(null);
 	let activeIngredient: { name: string; new: boolean } | null = $state(null);
+	let hasMaxPerMonth: boolean = $state(initialRecipe.maxPerMonth !== undefined);
 
 	function openModal(ingredient: typeof activeIngredient) {
 		isModalOpen = true;
@@ -43,6 +53,7 @@
 	}
 
 	function handleSave() {
+		recipe.maxPerMonth = hasMaxPerMonth ? recipe.maxPerMonth : undefined;
 		onSave(recipe);
 	}
 
@@ -143,6 +154,14 @@
 			<option value={Difficulty.Hard}>Hard</option>
 		</Input>
 	</FormGroup>
+
+	<Input type="checkbox" bind:checked={hasMaxPerMonth} label="Max Times Per Month" />
+
+	{#if hasMaxPerMonth}
+		<FormGroup floating label="Max Per Month">
+			<Input type="number" placeholder="Max Per Month" bind:value={recipe.maxPerMonth} min={1} />
+		</FormGroup>
+	{/if}
 
 	<h2>Tags</h2>
 	<Table>

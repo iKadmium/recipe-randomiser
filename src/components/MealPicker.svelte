@@ -20,7 +20,6 @@
 
 	onMount(() => {
 		window.setTimeout(() => {
-			console.log('inputRef', inputRef);
 			inputRef?.focus();
 		}, 0);
 	});

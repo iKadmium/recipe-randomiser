@@ -3,7 +3,7 @@
 
 	import { generateMeals, getMealForDate, type MealDate } from '$lib/meal-generator';
 	import { getShoppingList } from '$lib/shopping-list';
-	import { getEveryDay, getFirstSaturdayOfNextMonth, toUTCIsoString } from '$lib/util';
+	import { getEveryDay, getFirstDayOfNextMonth, getNextDay, toUTCIsoString } from '$lib/util';
 	import DateListSelector from '../components/DateListSelector.svelte';
 	import DatePicker from '../components/DatePicker.svelte';
 	import MealCalendar from '../components/MealCalendar.svelte';
@@ -13,10 +13,16 @@
 
 	let startDate = $state(getStartDate());
 	let endDate = $state(getEndDate());
-	let easyMealDays = $state<Date[]>(getEveryDay(getStartDate(), getEndDate(), 'Monday'));
-	let takeoutDays = $state<Date[]>(getEveryDay(getStartDate(), getEndDate(), 'Friday'));
-	let mealDays = $state<MealDate[]>(
-		// svelte-ignore state_referenced_locally
+
+	let easyMealDays = $state<Date[]>([]);
+	let takeoutDays = $state<Date[]>([]);
+
+	$effect(() => {
+		easyMealDays = getEveryDay(startDate, endDate, 'Monday');
+		takeoutDays = [...getEveryDay(startDate, endDate, 'Friday'), getNextDay(startDate, 'Monday')];
+	});
+
+	let mealDays = $derived(
 		generateMeals(startDate, endDate, easyMealDays, takeoutDays, data.recipes)
 	);
 
@@ -24,14 +30,14 @@
 	let activeMeal = $state<MealDate | null>(null);
 
 	let shoppingList = $derived(getShoppingList(mealDays, data.recipes, data.ingredients));
-
+	getFirstDayOfNextMonth;
 	function getStartDate(): Date {
 		const today = new Date();
-		let firstSaturday = getFirstSaturdayOfNextMonth(today);
-
+		let firstSaturday = getFirstDayOfNextMonth(today, 'Saturday');
+		getFirstDayOfNextMonth;
 		if (firstSaturday < today) {
 			const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
-			firstSaturday = getFirstSaturdayOfNextMonth(nextMonth);
+			firstSaturday = getFirstDayOfNextMonth(nextMonth, 'Saturday');
 		}
 
 		return firstSaturday;
@@ -40,7 +46,7 @@
 	function getEndDate(): Date {
 		const today = new Date();
 		const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
-		const firstSaturday = getFirstSaturdayOfNextMonth(nextMonth);
+		const firstSaturday = getFirstDayOfNextMonth(nextMonth, 'Saturday');
 
 		const dayBeforeFirstSaturday = new Date(firstSaturday);
 		dayBeforeFirstSaturday.setDate(firstSaturday.getDate() - 1);
@@ -51,7 +57,7 @@
 	function handleRandomiseClick(date: Date): void {
 		const meal = mealDays.find((meal) => toUTCIsoString(meal.date) === toUTCIsoString(date));
 		if (meal) {
-			meal.meal = getMealForDate(date, easyMealDays, takeoutDays, data.recipes);
+			meal.meal = getMealForDate(date, easyMealDays, takeoutDays, data.recipes, mealDays);
 		}
 	}
 
@@ -66,12 +72,18 @@
 	function handleTakeoutClick(date: Date): void {
 		const meal = mealDays.find((meal) => toUTCIsoString(meal.date) === toUTCIsoString(date));
 		if (meal) {
+			const dateString = toUTCIsoString(date);
+			const isTakeoutDay = takeoutDays.some((day: Date) => toUTCIsoString(day) === dateString);
+
 			if (meal.meal === 'Takeout') {
-				takeoutDays = takeoutDays.filter((day) => toUTCIsoString(day) !== toUTCIsoString(date));
+				// Remove from takeout
+				takeoutDays = takeoutDays.filter((day: Date) => toUTCIsoString(day) !== dateString);
 			} else {
-				takeoutDays.push(date);
+				// Add to takeout
+				if (!isTakeoutDay) {
+					takeoutDays = [...takeoutDays, date];
+				}
 			}
-			meal.meal = getMealForDate(date, easyMealDays, takeoutDays, data.recipes);
 		}
 	}
 
@@ -97,14 +109,18 @@
 	<TabPane tabId="meals" tab="Meals" active>
 		<MealCalendar
 			{mealDays}
+			{startDate}
+			{endDate}
 			onRandomiseClick={handleRandomiseClick}
 			onPickClick={handlePickClick}
 			onTakeoutClick={handleTakeoutClick}
 		/>
 		<Button
 			color="primary"
-			on:click={() =>
-				(mealDays = generateMeals(startDate, endDate, easyMealDays, takeoutDays, data.recipes))}
+			on:click={() => {
+				easyMealDays = getEveryDay(startDate, endDate, 'Monday');
+				takeoutDays = getEveryDay(startDate, endDate, 'Friday');
+			}}
 		>
 			Generate Meals
 		</Button>

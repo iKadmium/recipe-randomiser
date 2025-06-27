@@ -36,6 +36,9 @@
 			<NavItem>
 				<NavLink href="/ingredients">Ingredients</NavLink>
 			</NavItem>
+			<NavItem>
+				<NavLink href="/takeout">Takeout</NavLink>
+			</NavItem>
 		</Nav>
 	</Collapse>
 </Navbar>

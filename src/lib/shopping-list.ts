@@ -18,7 +18,6 @@ function addIngredient(ingredient: IngredientWithAmount, list: IngredientWithAmo
     } else {
         list.push({ ...ingredient });
     }
-    console.log(`Added ${ingredient.amount} of ${ingredient.ingredient} to the shopping list.`);
 }
 
 function getWeekNumber(date: Date, startDate: Date): number {
@@ -35,10 +34,10 @@ export function getShoppingList(mealDays: MealDate[], recipes: Database<Recipe>,
         pantry: []
     };
 
-    const recipeNames = mealDays.map(meal => meal.meal).filter((value, index, self) => self.indexOf(value) === index);
+    const recipeNames = mealDays.map(meal => meal.meal);
 
     for (const recipeName of recipeNames) {
-        console.log(`Processing recipe: ${recipeName}`);
+        if (!recipeName) continue; // Skip if meal is undefined or empty
         const recipe = recipes[recipeName];
         if (!recipe) continue;
 

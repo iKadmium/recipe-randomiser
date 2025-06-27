@@ -4,6 +4,7 @@ export interface Recipe {
 	ingredients: IngredientWithAmount[];
 	difficulty: number;
 	tags: string[];
+	maxPerMonth?: number;
 }
 
 export interface IngredientWithAmount {

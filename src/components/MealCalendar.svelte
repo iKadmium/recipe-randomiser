@@ -3,6 +3,8 @@
 
 	export interface MealCalendarProps {
 		mealDays: MealDate[];
+		startDate: Date;
+		endDate: Date;
 		onRandomiseClick: (date: Date) => unknown | Promise<unknown>;
 		onPickClick: (date: Date) => unknown | Promise<unknown>;
 		onTakeoutClick: (date: Date) => unknown | Promise<unknown>;
@@ -14,10 +16,14 @@
 	import { eachDayOfInterval, endOfWeek, startOfWeek } from 'date-fns';
 	import MealCalendarDay from './MealCalendarDay.svelte';
 
-	let { mealDays, onRandomiseClick, onPickClick, onTakeoutClick }: MealCalendarProps = $props();
-
-	let startDate = $derived(mealDays[0]?.date ?? new Date());
-	let endDate = $derived(mealDays[mealDays.length - 1]?.date ?? new Date());
+	let {
+		mealDays,
+		startDate,
+		endDate,
+		onRandomiseClick,
+		onPickClick,
+		onTakeoutClick
+	}: MealCalendarProps = $props();
 
 	let monthName = $derived(startDate.toLocaleDateString(undefined, { month: 'long' }));
 
@@ -56,7 +62,13 @@
 		{#each week as date}
 			<MealCalendarDay
 				{date}
-				meal={mealDays.find((meal) => toUTCIsoString(meal.date) === toUTCIsoString(date))?.meal}
+				meal={(() => {
+					const dateString = toUTCIsoString(date).split('T')[0];
+					const foundMeal = mealDays.find(
+						(meal) => toUTCIsoString(meal.date).split('T')[0] === dateString
+					);
+					return foundMeal?.meal;
+				})()}
 				onRandomise={() => onRandomiseClick(date)}
 				onPick={() => onPickClick(date)}
 				onTakeout={() => onTakeoutClick(date)}

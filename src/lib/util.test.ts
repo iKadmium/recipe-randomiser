@@ -1,4 +1,4 @@
-import { getFirstSaturdayOfNextMonth } from './util';
+import { getFirstDayOfNextMonth } from './util';
 import { expect, test, describe } from 'vitest';
 
 describe('util', () => {
@@ -6,7 +6,7 @@ describe('util', () => {
 		test('should return the last Friday of the month', () => {
 			const date = new Date('2025-03-01');
 			const expected = new Date('2025-04-05');
-			const result = getFirstSaturdayOfNextMonth(date);
+			const result = getFirstDayOfNextMonth(date);
 			expect(result).toEqual(expected);
 		});
 	});
