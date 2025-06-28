@@ -1,6 +1,9 @@
 import netlifyAdapter from '@sveltejs/adapter-netlify';
 import nodeAdapter from '@sveltejs/adapter-node';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
+import { config as dotenvConfig } from 'dotenv';
+
+dotenvConfig();
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {

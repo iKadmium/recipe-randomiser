@@ -1,7 +1,7 @@
-import type { DataSource, DataSourceProvider, Named } from './types';
-import { NodeFSDataSource } from './nodeFSDataSource';
+import { RUNTIME_ENVIRONMENT } from '$env/static/private';
 import { NetlifyBlobsDataSource } from './netlifyBlobsDataSource';
-import { env } from '$env/dynamic/private';
+import { NodeFSDataSource } from './nodeFSDataSource';
+import type { DataSource, DataSourceProvider, Named } from './types';
 
 /**
  * Factory function to create a DataSource implementation based on environment
@@ -16,7 +16,7 @@ export function createDataSource<T extends Named<K>, K extends string = 'name'>(
 	provider?: DataSourceProvider
 ): DataSource<T, K> {
 	const dataSourceProvider: DataSourceProvider =
-		provider || (env.RUNTIME_ENVIRONMENT === 'netlify' ? 'netlifyblobs' : 'nodefs');
+		provider || (RUNTIME_ENVIRONMENT === 'netlify' ? 'netlifyblobs' : 'nodefs');
 
 	switch (dataSourceProvider) {
 		case 'netlifyblobs':
