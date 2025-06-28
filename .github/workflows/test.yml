@@ -19,7 +19,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Test
-        run: pnpm test
+        run: pnpm run test:unit
       - name: Check
         run: pnpm run check
       - name: Build
