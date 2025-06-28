@@ -2,10 +2,10 @@ import type { Takeout } from '$lib/models/takeout';
 import type { Ingredient } from '../models/ingredient';
 import type { Recipe } from '../models/recipe';
 import type { Tag } from '../models/tag';
-import { createDataSource } from './dataSourceFactory.svelte';
+import { createDataSource } from './dataSourceFactory';
 
 // Export the interface and implementations for use in other parts of the application
-export { createDataSource } from './dataSourceFactory.svelte';
+export { createDataSource } from './dataSourceFactory';
 export { NetlifyBlobsDataSource } from './netlifyBlobsDataSource';
 export { NodeFSDataSource } from './nodeFSDataSource';
 export type { DataSource, Named } from './types';
