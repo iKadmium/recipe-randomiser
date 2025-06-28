@@ -3,6 +3,7 @@ import { redirect } from '@sveltejs/kit';
 
 // This 'handle' function runs for every server-side request
 export async function handle({ event, resolve }) {
+	console.log(process.env);
 	// List of public routes that don't require authentication
 	// Make sure to include your login page and any other necessary public assets/routes
 	const publicRoutes = ['/login', '/login/', '/api/auth/login']; // Add other public routes if any (e.g., /api/public)
