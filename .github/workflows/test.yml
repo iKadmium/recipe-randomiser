@@ -15,7 +15,7 @@ jobs:
           node-version: latest
       - uses: pnpm/action-setup@v4
         with:
-          pnpm-version: latest
+          version: latest
       - name: Install dependencies
         run: pnpm install
       - name: Test
