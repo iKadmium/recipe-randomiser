@@ -5,6 +5,7 @@ on:
     branches: ['main']
 env:
   IMAGE_NAME: recipe-randomizer
+  PUBLIC_DATA_ROOT: ./data
 jobs:
   test:
     runs-on: ubuntu-latest
