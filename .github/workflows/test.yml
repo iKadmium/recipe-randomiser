@@ -6,6 +6,7 @@ on:
 env:
   IMAGE_NAME: recipe-randomizer
   PUBLIC_DATA_ROOT: ./data
+  RUNTIME_ENVIRONMENT: node
 jobs:
   test:
     runs-on: ubuntu-latest
