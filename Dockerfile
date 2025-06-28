@@ -1,16 +1,16 @@
-FROM oven/bun:1 as builder
+FROM node:latest as builder
 WORKDIR /app
 
-COPY package.json bun.lock ./
-RUN bun install
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install
 
 COPY . .
-RUN bun run build
+RUN pnpm run build
 
-FROM oven/bun:1
+FROM node:latest
 WORKDIR /app
 COPY --from=builder /app/build ./
-RUN bun install
+RUN pnpm install
 RUN mkdir data
 
 ENV RUNTIME_ENVIRONMENT=node
