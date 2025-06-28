@@ -1,4 +1,6 @@
+import { building } from '$app/environment';
 import { RUNTIME_ENVIRONMENT } from '$env/static/private';
+import { FakeDataSource } from './fakeDataSource';
 import { NetlifyBlobsDataSource } from './netlifyBlobsDataSource';
 import { NodeFSDataSource } from './nodeFSDataSource';
 import type { DataSource, DataSourceProvider, Named } from './types';
@@ -15,6 +17,9 @@ export function createDataSource<T extends Named<K>, K extends string = 'name'>(
 	keyProperty: K = 'name' as K,
 	provider?: DataSourceProvider
 ): DataSource<T, K> {
+	if (building) {
+		return new FakeDataSource<T, K>();
+	}
 	const dataSourceProvider: DataSourceProvider =
 		provider || (RUNTIME_ENVIRONMENT === 'netlify' ? 'netlifyblobs' : 'nodefs');
 

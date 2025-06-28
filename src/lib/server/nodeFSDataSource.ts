@@ -4,7 +4,8 @@ import type { Database } from '../models/database';
 import type { DataSource, Named } from './types';
 
 export class NodeFSDataSource<T extends Named<K>, K extends string = 'name'>
-	implements DataSource<T, K> {
+	implements DataSource<T, K>
+{
 	private filename: string;
 	private keyProperty: K;
 
