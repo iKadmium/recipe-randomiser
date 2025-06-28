@@ -12,7 +12,7 @@
 	} from '@sveltestrap/sveltestrap';
 	import ToastSet from '../components/ToastSet.svelte';
 	import '../global.css';
-	import type { LayoutProps, PageProps } from './$types';
+	import type { LayoutProps } from './$types';
 
 	let isOpen = $state<boolean>(false);
 	let { data, children }: LayoutProps = $props();

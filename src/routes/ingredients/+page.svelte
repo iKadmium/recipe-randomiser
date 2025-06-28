@@ -24,7 +24,7 @@
 <Button color="primary" href="/ingredients/new">New Ingredient</Button>
 
 <CardDeck>
-	{#each Object.entries(data) as [key, ingredient]}
+	{#each Object.entries(data) as [key, ingredient] (key)}
 		<IngredientListItem {ingredient} {key} onDelete={() => handleDelete(key)} />
 	{/each}
 </CardDeck>

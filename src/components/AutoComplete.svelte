@@ -27,7 +27,7 @@
 		inputRef = $bindable()
 	}: AutoCompleteProps = $props();
 
-	function handleSearchInput(event: Event & { currentTarget: EventTarget & HTMLInputElement }) {
+	function handleSearchInput() {
 		if (searchString === '') {
 			suggestions = [];
 		} else {
@@ -40,7 +40,7 @@
 
 	async function handleSearchKeyDown(event: KeyboardEvent) {
 		switch (event.key) {
-			case 'ArrowDown':
+			case 'ArrowDown': {
 				const legitOptionCount = allowAdd
 					? Object.keys(suggestions).length
 					: Object.keys(suggestions).length - 1;
@@ -49,6 +49,7 @@
 				}
 				event.preventDefault();
 				break;
+			}
 			case 'ArrowUp':
 				if (selectedIndex > 0) {
 					selectedIndex--;
@@ -90,7 +91,7 @@
 
 	{#if searchString.length > 0}
 		<div class="suggestion-list light" style={`width: ${inputRef.clientWidth}px`}>
-			{#each suggestions as key, index}
+			{#each suggestions as key, index (key)}
 				<AutoCompleteSuggestion
 					title={key}
 					selected={selectedIndex === index}

@@ -23,7 +23,7 @@
 </script>
 
 <div class="toast-container">
-	{#each $toasts as toast}
+	{#each $toasts as toast (toast.message)}
 		<button class={`btn toast-button btn-${getIcon(toast)}`} on:click={() => removeToast(toast)}>
 			<Toast on:close={() => removeToast(toast)} color={toast.type}>
 				<ToastHeader icon={getIcon(toast)}>{getHeader(toast)}</ToastHeader>

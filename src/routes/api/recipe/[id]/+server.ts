@@ -10,6 +10,7 @@ export async function DELETE({ params }) {
 		await recipesDataSource.delete(id);
 		return new Response('Deleted successfully', { status: 200 });
 	} catch (error) {
+		console.error(error);
 		return new Response('Error deleting recipe', { status: 500 });
 	}
 }
@@ -26,6 +27,7 @@ export async function PUT({ params, request }) {
 		await recipesDataSource.put(id, data);
 		return new Response('Updated successfully', { status: 200 });
 	} catch (error) {
+		console.error(error);
 		return new Response('Error updating recipe', { status: 500 });
 	}
 }

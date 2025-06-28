@@ -41,7 +41,7 @@
 <Button color="primary" on:click={() => addTakeout()}>New takeout</Button>
 
 <CardDeck>
-	{#each Object.entries(data) as [key, takeout]}
-		<TakeoutListItem {takeout} {key} on:delete={() => handleDelete(key)} />
+	{#each Object.entries(data) as [key, takeout] (key)}
+		<TakeoutListItem {takeout} {key} onDelete={() => handleDelete(key)} />
 	{/each}
 </CardDeck>

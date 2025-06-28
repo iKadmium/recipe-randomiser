@@ -92,7 +92,7 @@
 			<FormGroup>
 				<Label for="dbType">Database Type</Label>
 				<Input type="select" id="dbType" bind:value={selectedDbType}>
-					{#each dbTypes as dbType}
+					{#each dbTypes as dbType (dbType)}
 						<option value={dbType.value}>{dbType.label}</option>
 					{/each}
 				</Input>

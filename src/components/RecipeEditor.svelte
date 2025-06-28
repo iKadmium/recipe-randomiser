@@ -12,16 +12,7 @@
 	import type { Ingredient } from '$lib/models/ingredient';
 	import { Difficulty, type IngredientWithAmount, type Recipe } from '$lib/models/recipe';
 	import type { Tag } from '$lib/models/tag';
-	import {
-		Button,
-		Form,
-		FormGroup,
-		Icon,
-		Input,
-		Label,
-		Modal,
-		Table
-	} from '@sveltestrap/sveltestrap';
+	import { Button, Form, FormGroup, Icon, Input, Modal, Table } from '@sveltestrap/sveltestrap';
 	import AutoComplete from './AutoComplete.svelte';
 
 	let {
@@ -68,11 +59,11 @@
 		}
 	}
 
-	function handleAmountCancel(event?: MouseEvent) {
+	function handleAmountCancel() {
 		isModalOpen = false;
 	}
 
-	async function handleAmountSubmit(event?: MouseEvent) {
+	async function handleAmountSubmit() {
 		if (!activeIngredient || !amountInputRef) {
 			return;
 		}
@@ -166,7 +157,7 @@
 	<h2>Tags</h2>
 	<Table>
 		<tbody>
-			{#each recipe.tags as tag}
+			{#each recipe.tags as tag (tag)}
 				<tr>
 					<td>{tag}</td>
 					<td>
@@ -198,7 +189,7 @@
 			</tr>
 		</thead>
 		<tbody>
-			{#each recipe.ingredients as ingredientAndAmount}
+			{#each recipe.ingredients as ingredientAndAmount (ingredientAndAmount)}
 				<tr>
 					<td>{ingredientAndAmount.amount}</td>
 					<td>{ingredientAndAmount.ingredient}</td>

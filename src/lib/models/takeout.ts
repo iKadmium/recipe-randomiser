@@ -1,3 +1,3 @@
 export interface Takeout {
-    name: string;
+	name: string;
 }

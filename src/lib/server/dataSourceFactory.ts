@@ -11,17 +11,18 @@ import { env } from '$env/dynamic/private';
  * @returns A DataSource implementation
  */
 export function createDataSource<T extends Named<K>, K extends string = 'name'>(
-    filename: string,
-    keyProperty: K = 'name' as K,
-    provider?: DataSourceProvider,
+	filename: string,
+	keyProperty: K = 'name' as K,
+	provider?: DataSourceProvider
 ): DataSource<T, K> {
-    const dataSourceProvider: DataSourceProvider = provider || (env.RUNTIME_ENVIRONMENT === 'netlify' ? 'netlifyblobs' : 'nodefs');
+	const dataSourceProvider: DataSourceProvider =
+		provider || (env.RUNTIME_ENVIRONMENT === 'netlify' ? 'netlifyblobs' : 'nodefs');
 
-    switch (dataSourceProvider) {
-        case 'netlifyblobs':
-            return new NetlifyBlobsDataSource<T, K>(filename, keyProperty);
-        default:
-        case 'nodefs':
-            return new NodeFSDataSource<T, K>(filename, keyProperty);
-    }
+	switch (dataSourceProvider) {
+		case 'netlifyblobs':
+			return new NetlifyBlobsDataSource<T, K>(filename, keyProperty);
+		default:
+		case 'nodefs':
+			return new NodeFSDataSource<T, K>(filename, keyProperty);
+	}
 }

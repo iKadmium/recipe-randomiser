@@ -1,21 +1,19 @@
-<script lang="ts" context="module">
-	export interface IngredientListItemEvents {
-		delete?: {};
+<script lang="ts" module>
+	export interface IngredientListItemProps {
+		onDelete: () => unknown | Promise<unknown>;
+		recipe: Recipe;
+		key: string;
 	}
 </script>
 
 <script lang="ts">
 	import type { Recipe } from '$lib/models/recipe';
 	import { Button, ButtonGroup, Card, CardBody, CardFooter, Icon } from '@sveltestrap/sveltestrap';
-	import { createEventDispatcher } from 'svelte';
 
-	export let recipe: Recipe;
-	export let key: string;
-
-	const dispatch = createEventDispatcher<IngredientListItemEvents>();
+	let { recipe, key, onDelete }: IngredientListItemProps = $props();
 
 	async function handleDeleteClick() {
-		dispatch('delete');
+		onDelete();
 	}
 </script>
 
@@ -28,7 +26,7 @@
 			<Button href={`/recipes/${key}`} color="warning">
 				<Icon name="pencil-square" />
 			</Button>
-			<Button color="danger" on:click={(event) => handleDeleteClick()}>
+			<Button color="danger" on:click={() => handleDeleteClick()}>
 				<Icon name="trash" />
 			</Button>
 		</ButtonGroup>

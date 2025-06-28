@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import type { Ingredient } from '$lib/models/ingredient';
-	import { writable } from 'svelte/store';
 	import IngredientEditor from '../../../components/IngredientEditor.svelte';
 
 	const initial: Ingredient = {
