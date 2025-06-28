@@ -4,9 +4,6 @@
 		key: string;
 		onDelete: () => unknown | Promise<unknown>;
 	}
-	export interface IngredientListItemEvents {
-		delete?: {};
-	}
 </script>
 
 <script lang="ts">
@@ -25,7 +22,7 @@
 			<Button href={`/ingredients/${key}`} color="warning">
 				<Icon name="pencil-square" />
 			</Button>
-			<Button color="danger" on:click={(event) => onDelete()}>
+			<Button color="danger" on:click={() => onDelete()}>
 				<Icon name="trash" />
 			</Button>
 		</ButtonGroup>

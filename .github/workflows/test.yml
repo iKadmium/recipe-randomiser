@@ -5,19 +5,24 @@ on:
     branches: ['main']
 env:
   IMAGE_NAME: recipe-randomizer
+  PUBLIC_DATA_ROOT: ./data
+  RUNTIME_ENVIRONMENT: node
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
+      - uses: actions/setup-node@v4
         with:
-          bun-version: latest
+          node-version: latest
+      - uses: pnpm/action-setup@v4
+        with:
+          version: latest
       - name: Install dependencies
-        run: bun install
+        run: pnpm install
       - name: Test
-        run: bun test
+        run: pnpm run test:unit
       - name: Check
-        run: bun run check
+        run: pnpm run check
       - name: Build
-        run: bun run build
+        run: pnpm run build

@@ -1,6 +1,21 @@
-export type Day = 'Sunday' | 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday';
+export type Day =
+	| 'Sunday'
+	| 'Monday'
+	| 'Tuesday'
+	| 'Wednesday'
+	| 'Thursday'
+	| 'Friday'
+	| 'Saturday';
 function getDayNumber(day: Day): number {
-	const dayNames: Day[] = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+	const dayNames: Day[] = [
+		'Sunday',
+		'Monday',
+		'Tuesday',
+		'Wednesday',
+		'Thursday',
+		'Friday',
+		'Saturday'
+	];
 	return dayNames.indexOf(day);
 }
 
@@ -56,7 +71,7 @@ export function getRandomWithPenalty<T>(
 ): T | undefined {
 	if (arr.length === 0) return undefined;
 
-	const weights = arr.map(item => {
+	const weights = arr.map((item) => {
 		const key = getKey(item);
 		const distance = used[key];
 		// Penalty: recent items (distance small) get lower weight, older get higher

@@ -55,11 +55,11 @@
 
 <h2>{monthName}</h2>
 <div class="calendar">
-	{#each weekDays as day}
+	{#each weekDays as day (day)}
 		<div class="day">{day}</div>
 	{/each}
-	{#each weeks as week}
-		{#each week as date}
+	{#each weeks as week (week)}
+		{#each week as date (date)}
 			<MealCalendarDay
 				{date}
 				meal={(() => {

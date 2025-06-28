@@ -1,16 +1,20 @@
-FROM oven/bun:1 as builder
+FROM node:latest as builder
 WORKDIR /app
+ENV RUNTIME_ENVIRONMENT=node
 
-COPY package.json bun.lock ./
-RUN bun install
+RUN npm install -g pnpm
+
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install
 
 COPY . .
-RUN bun run build
+RUN pnpm run build
 
-FROM oven/bun:1
+FROM node:latest
 WORKDIR /app
+ENV PUBLIC_DATA_ROOT=/app/data
+
 COPY --from=builder /app/build ./
-RUN bun install
 RUN mkdir data
 
-ENTRYPOINT ["bun", "start"]
+ENTRYPOINT ["node", "index.js"]

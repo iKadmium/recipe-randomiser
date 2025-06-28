@@ -24,7 +24,7 @@
 <Button color="primary" href="/recipes/new">New Recipe</Button>
 
 <CardDeck>
-	{#each Object.entries(data) as [key, recipe]}
-		<RecipeListItem {recipe} {key} on:delete={() => handleDelete(key)} />
+	{#each Object.entries(data) as [key, recipe] (key)}
+		<RecipeListItem {recipe} {key} onDelete={() => handleDelete(key)} />
 	{/each}
 </CardDeck>

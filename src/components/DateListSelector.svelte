@@ -17,7 +17,7 @@
 <FormGroup>
 	<fieldset class="days">
 		<legend>{legend}</legend>
-		{#each dates as day, index}
+		{#each dates as day, index (day)}
 			<div class="day">
 				<Input
 					type="date"

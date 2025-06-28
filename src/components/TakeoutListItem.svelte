@@ -1,21 +1,19 @@
-<script lang="ts" context="module">
-	export interface IngredientListItemEvents {
-		delete?: {};
+<script lang="ts" module>
+	export interface TakeoutListItemProps {
+		onDelete: () => unknown | Promise<unknown>;
+		takeout: Takeout;
+		key: string;
 	}
 </script>
 
 <script lang="ts">
 	import type { Takeout } from '$lib/models/takeout';
 	import { Button, ButtonGroup, Card, CardBody, CardFooter, Icon } from '@sveltestrap/sveltestrap';
-	import { createEventDispatcher } from 'svelte';
 
-	export let takeout: Takeout;
-	export let key: string;
-
-	const dispatch = createEventDispatcher<IngredientListItemEvents>();
+	let { takeout, key, onDelete }: TakeoutListItemProps = $props();
 
 	async function handleDeleteClick() {
-		dispatch('delete');
+		onDelete();
 	}
 
 	async function handleEditClick() {
@@ -40,7 +38,7 @@
 			<Button on:click={() => handleEditClick()} color="warning">
 				<Icon name="pencil-square" />
 			</Button>
-			<Button color="danger" on:click={(event) => handleDeleteClick()}>
+			<Button color="danger" on:click={() => handleDeleteClick()}>
 				<Icon name="trash" />
 			</Button>
 		</ButtonGroup>

@@ -30,11 +30,10 @@
 	let activeMeal = $state<MealDate | null>(null);
 
 	let shoppingList = $derived(getShoppingList(mealDays, data.recipes, data.ingredients));
-	getFirstDayOfNextMonth;
+
 	function getStartDate(): Date {
 		const today = new Date();
 		let firstSaturday = getFirstDayOfNextMonth(today, 'Saturday');
-		getFirstDayOfNextMonth;
 		if (firstSaturday < today) {
 			const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
 			firstSaturday = getFirstDayOfNextMonth(nextMonth, 'Saturday');
@@ -129,12 +128,12 @@
 	<TabPane tabId="ingredients" tab="Shopping List">
 		<h2>Fresh</h2>
 		<ul>
-			{#each shoppingList.fresh.toSorted((a, b) => a.week - b.week) as week}
+			{#each shoppingList.fresh.toSorted((a, b) => a.week - b.week) as week (week.week)}
 				<li>
 					Week {week.week}
 
 					<ul>
-						{#each week.ingredients as ingredient}
+						{#each week.ingredients as ingredient (ingredient.ingredient)}
 							<li>
 								{ingredient.ingredient} - {ingredient.amount}
 							</li>
@@ -145,7 +144,7 @@
 		</ul>
 		<h2>Pantry</h2>
 		<ul>
-			{#each shoppingList.pantry as ingredient}
+			{#each shoppingList.pantry as ingredient (ingredient.ingredient)}
 				<li>
 					{ingredient.ingredient} - {ingredient.amount}
 				</li>
