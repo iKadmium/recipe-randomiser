@@ -1,5 +1,9 @@
 FROM node:latest as builder
 WORKDIR /app
+ENV PUBLIC_DATA_ROOT=/app/data
+ENV RUNTIME_ENVIRONMENT=node
+
+RUN npm install -g pnpm
 
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install
@@ -10,10 +14,6 @@ RUN pnpm run build
 FROM node:latest
 WORKDIR /app
 COPY --from=builder /app/build ./
-RUN pnpm install
 RUN mkdir data
 
-ENV RUNTIME_ENVIRONMENT=node
-ENV PUBLIC_DATA_ROOT=/app/data
-
-ENTRYPOINT ["bun", "start"]
+ENTRYPOINT ["node", "index.js"]

@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { PASSWORD } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 
 export async function POST({ request, cookies }) {
     try {
@@ -15,7 +15,7 @@ export async function POST({ request, cookies }) {
         const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
         // Compare with the hashed password from environment variable
-        if (hashHex !== PASSWORD) {
+        if (hashHex !== env.PASSWORD) {
             return json({ error: 'Invalid password' }, { status: 401 });
         }
 
