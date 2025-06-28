@@ -1,16 +1,15 @@
-import { PUBLIC_DATA_ROOT } from '$env/static/public';
+import { env } from '$env/dynamic/private';
 import { readFile, writeFile } from 'node:fs/promises';
 import type { Database } from '../models/database';
 import type { DataSource, Named } from './types';
 
 export class NodeFSDataSource<T extends Named<K>, K extends string = 'name'>
-	implements DataSource<T, K>
-{
+	implements DataSource<T, K> {
 	private filename: string;
 	private keyProperty: K;
 
 	public constructor(filename: string, keyProperty: K = 'name' as K) {
-		this.filename = `${PUBLIC_DATA_ROOT}/${filename}`;
+		this.filename = `${env.PUBLIC_DATA_ROOT}/${filename}`;
 		this.keyProperty = keyProperty;
 	}
 
