@@ -13,4 +13,7 @@ COPY --from=builder /app/build ./
 RUN bun install
 RUN mkdir data
 
+ENV RUNTIME_ENVIRONMENT=node
+ENV PUBLIC_DATA_ROOT=/app/data
+
 ENTRYPOINT ["bun", "start"]

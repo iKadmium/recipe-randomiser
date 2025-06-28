@@ -1,0 +1,155 @@
+# GitHub Copilot Instructions for Recipe Randomiser
+
+# Project context and guidelines for GitHub Copilot
+project:
+  name: 'Recipe Randomiser'
+  description: 'SvelteKit application for meal planning and recipe management with dual data source support'
+
+  # Tech stack information
+  stack:
+    - 'SvelteKit 5'
+    - 'TypeScript'
+    - 'Sveltestrap'
+    - 'Netlify Blobs'
+    - 'Vitest'
+    - 'Playwright'
+
+  # Package manager preference
+  package_manager: 'pnpm'
+
+# Code style preferences
+coding_style:
+  # Language preferences
+  typescript:
+    - 'Use strict TypeScript with proper typing'
+    - 'Prefer interfaces over types for object shapes'
+    - 'Use generics for reusable components/functions'
+    - 'Named exports preferred over default exports'
+
+  # Svelte 5 specific guidelines
+  svelte:
+    - 'Use Svelte 5 runes: $state, $props, $effect'
+    - 'Create an interface for component props'
+    - 'Component props: let { propName }: ComponentNameProps = $props()'
+    - 'Reactive state: let variable = $state(initialValue)'
+    - 'Side effects: $effect(() => { ... })'
+
+  # File naming conventions
+  naming:
+    components: 'PascalCase (e.g., MealCalendar.svelte)'
+    routes: 'lowercase with SvelteKit conventions (+page.svelte, +server.ts)'
+    utilities: 'camelCase (e.g., meal-generator.ts)'
+
+# Architecture patterns to follow
+patterns:
+  # Data source pattern
+  data_sources:
+    - 'Use factory pattern with createDataSource()'
+    - 'NodeFSDataSource for development'
+    - 'NetlifyBlobsDataSource for production'
+    - "All models must have 'name' property as primary key"
+
+  # API structure
+  api:
+    - 'Follow RESTful conventions'
+    - 'GET /api/{model} - List all'
+    - 'POST /api/{model} - Create'
+    - 'GET /api/{model}/[id] - Get specific'
+    - 'PUT /api/{model}/[id] - Update'
+    - 'DELETE /api/{model}/[id] - Delete'
+
+  # Component structure
+  component_structure: |
+    <script lang="ts">
+      // 1. Imports
+      // 2. Props declaration with $props()
+      // 3. State variables with $state()
+      // 4. Effects with $effect()
+      // 5. Functions
+    </script>
+
+    <!-- Template -->
+
+    <style>
+      /* Component styles */
+    </style>
+
+# Domain-specific guidelines
+domain:
+  # Recipe management
+  recipes:
+    properties:
+      - 'name: string (primary key)'
+      - 'priority: number (for weighted selection)'
+      - 'ingredients: IngredientWithAmount[]'
+      - 'difficulty: 1-3 (Easy, Medium, Hard)'
+      - 'tags: string[]'
+      - 'maxPerMonth?: number'
+
+  # Meal generation logic
+  meal_generation:
+    - 'Use weighted random selection based on priority'
+    - 'Consider difficulty for easy meal days'
+    - 'Respect maxPerMonth limits'
+    - 'Handle takeout days separately'
+
+# Error handling preferences
+error_handling:
+  - "Use SvelteKit's error() function for HTTP errors"
+  - 'Provide meaningful error messages'
+  - 'Handle both client and server-side errors gracefully'
+  - 'Validate data in API routes'
+
+# Dependencies to prefer
+dependencies:
+  ui: 'Sveltestrap components'
+  icons: '@iconify-json/mdi with unplugin-icons'
+  dates: 'Built-in Date objects with util functions'
+  forms: "SvelteKit's enhance action"
+
+# Testing guidelines
+testing:
+  unit: 'Vitest for utility functions and business logic'
+  integration: 'Playwright for user workflows'
+  mocking: 'Mock Netlify Blobs in tests'
+  coverage: 'Test both data source implementations'
+
+# Performance considerations
+performance:
+  - "Use SvelteKit's built-in optimizations"
+  - 'Implement loading states for async operations'
+  - 'Consider pagination for large datasets'
+  - 'Proper TypeScript for tree-shaking'
+
+# Common code patterns
+patterns_examples:
+  # Data loading in routes
+  route_loading: |
+    // +page.server.ts
+    import { createDataSource } from '$lib/server/dataSourceFactory';
+
+    export async function load() {
+      const dataSource = createDataSource<ModelType>('filename.json');
+      const data = await dataSource.getAll();
+      return { data };
+    }
+
+  # Form handling
+  form_handling: |
+    <script lang="ts">
+      import { enhance } from '$app/forms';
+      let { data } = $props();
+      let form = $state();
+    </script>
+
+    <form method="POST" use:enhance>
+      <!-- form fields -->
+    </form>
+
+# Project-specific notes
+notes:
+  - 'DO NOT create example files or documentation on how to use the code - return that to the user in the chat window'
+  - 'Always use pnpm for package management'
+  - 'Support both development (Node.js) and production (Netlify) environments'
+  - 'Prioritize type safety and follow established patterns'
+  - 'Use the dual data source pattern for any new data operations'

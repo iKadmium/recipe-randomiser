@@ -6,18 +6,20 @@
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
   "customizations": {
     "vscode": {
-      "extensions": ["svelte.svelte-vscode", "esbenp.prettier-vscode"]
+      "extensions": [
+        "svelte.svelte-vscode",
+        "esbenp.prettier-vscode"
+      ]
     }
   },
   // Features to add to the dev container. More info: https://containers.dev/features.
   "features": {
-    "ghcr.io/lumenpink/devcontainer-features/bun:0": {}
+    "ghcr.io/devcontainers/features/node:1": {}
   },
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   // "forwardPorts": [
   // 	5173
   // ],
-  "appPort": ["5173:5173"]
   // Use 'postCreateCommand' to run commands after the container is created.
   // "postCreateCommand": "yarn install",
   // Configure tool-specific properties.
