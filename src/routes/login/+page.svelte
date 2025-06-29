@@ -1,20 +1,18 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import { loggedInStore } from '$lib/logged-in-store.svelte';
+	import { addToast } from '$lib/toasts';
 	import {
+		Alert,
+		Button,
 		Card,
-		CardHeader,
 		CardBody,
+		CardHeader,
 		Form,
 		FormGroup,
 		Input,
-		Label,
-		Button,
-		Alert
+		Label
 	} from '@sveltestrap/sveltestrap';
-	import { goto } from '$app/navigation';
-	import { addToast } from '$lib/toasts';
-	import type { PageProps } from './$types';
-
-	let { data }: PageProps = $props();
 
 	let password = $state('');
 	let loading = $state(false);
@@ -47,6 +45,8 @@
 				message: 'Login successful'
 			});
 
+			loggedInStore.set(true);
+
 			// Redirect to home page or dashboard
 			await goto('/');
 		} catch (err) {
@@ -71,6 +71,8 @@
 			if (!response.ok) {
 				throw new Error('Logout failed');
 			}
+
+			loggedInStore.set(false);
 
 			addToast({
 				type: 'success',
@@ -101,7 +103,7 @@
 		<CardBody>
 			<Form>
 				<FormGroup>
-					{#if data.loggedIn}
+					{#if $loggedInStore}
 						<p>You are currently logged in</p>
 					{:else}
 						<Label for="password">Password</Label>
@@ -123,7 +125,7 @@
 				{/if}
 
 				<div class="d-grid">
-					{#if data.loggedIn}
+					{#if $loggedInStore}
 						<Button color="primary" onclick={handleLogout} disabled={loading}>
 							{loading ? 'Logging out...' : 'Log out'}
 						</Button>

@@ -1,9 +1,7 @@
 <script lang="ts">
-	import { Button } from '@sveltestrap/sveltestrap';
-	import CardDeck from '../../components/CardDeck.svelte';
-	import IngredientListItem from '../../components/IngredientListItem.svelte';
-	import type { PageProps } from './$types';
 	import { getDatabaseEntries } from '$lib/models/database';
+	import { Button, ButtonGroup, Icon, Table } from '@sveltestrap/sveltestrap';
+	import type { PageProps } from './$types';
 
 	async function handleDelete(key: string) {
 		const resp = await fetch(`/api/ingredient/${key}`, {
@@ -29,8 +27,28 @@
 
 <Button color="primary" href="/ingredients/new">New Ingredient</Button>
 
-<CardDeck>
-	{#each ingredients as [key, ingredient] (key)}
-		<IngredientListItem {ingredient} {key} onDelete={() => handleDelete(key)} />
-	{/each}
-</CardDeck>
+<Table striped bordered hover>
+	<thead>
+		<tr>
+			<th>Name</th>
+			<th>Actions</th>
+		</tr>
+	</thead>
+	<tbody>
+		{#each ingredients as [key, ingredient] (key)}
+			<tr>
+				<td>{ingredient.name}</td>
+				<td>
+					<ButtonGroup>
+						<Button href={`/ingredients/${key}`} color="warning">
+							<Icon name="pencil-square" />
+						</Button>
+						<Button color="danger" on:click={() => handleDelete(key)}>
+							<Icon name="trash" />
+						</Button>
+					</ButtonGroup>
+				</td>
+			</tr>
+		{/each}
+	</tbody>
+</Table>
