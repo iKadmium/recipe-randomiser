@@ -9,11 +9,7 @@ export class NetlifyBlobsDataSource<T extends Named<K>, K extends string = 'name
 	private keyProperty: K;
 
 	public constructor(filename: string, keyProperty: K = 'name' as K) {
-		this.store = getStore({
-			name: 'data',
-			siteID: process.env.NETLIFY_SITE_ID,
-			token: process.env.NETLIFY_BLOBS_STORE_TOKEN
-		});
+		this.store = getStore({name: 'data'});
 		this.key = filename.replace('.json', '');
 		this.keyProperty = keyProperty;
 	}
