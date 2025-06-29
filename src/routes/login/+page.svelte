@@ -126,11 +126,11 @@
 
 				<div class="d-grid">
 					{#if $loggedInStore}
-						<Button color="primary" onclick={handleLogout} disabled={loading}>
+						<Button color="primary" on:click={handleLogout} disabled={loading}>
 							{loading ? 'Logging out...' : 'Log out'}
 						</Button>
 					{:else}
-						<Button color="primary" onclick={handleLogin} disabled={loading || !password.trim()}>
+						<Button color="primary" on:click={handleLogin} disabled={loading || !password.trim()}>
 							{loading ? 'Logging in...' : 'Login'}
 						</Button>
 					{/if}
