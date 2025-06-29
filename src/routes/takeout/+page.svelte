@@ -14,7 +14,6 @@
 			return;
 		}
 		delete takeoutsRaw[key];
-		data.takeouts = data.takeouts;
 	}
 
 	async function addTakeout() {
