@@ -13,9 +13,11 @@
 	import ToastSet from '../components/ToastSet.svelte';
 	import '../global.css';
 	import type { LayoutProps } from './$types';
+	import { loggedInStore } from '$lib/logged-in-store.svelte';
 
 	let isOpen = $state<boolean>(false);
 	let { data, children }: LayoutProps = $props();
+	loggedInStore.set(data.loggedIn);
 
 	function toggle() {
 		isOpen = !isOpen;
@@ -26,7 +28,7 @@
 
 <ToastSet />
 
-{#if data.loggedIn}
+{#if $loggedInStore}
 	<Navbar expand="md" container="md">
 		<NavbarBrand href="/">Meal Generator</NavbarBrand>
 		<NavbarToggler class="me-2" on:click={toggle} />
