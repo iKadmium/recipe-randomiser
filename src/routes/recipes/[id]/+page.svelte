@@ -2,8 +2,9 @@
 	import { goto } from '$app/navigation';
 	import type { Recipe } from '$lib/models/recipe';
 	import RecipeEditor from '../../../components/RecipeEditor.svelte';
+	import type { PageProps } from './$types';
 
-	let { data } = $props();
+	let { data }: PageProps = $props();
 
 	async function handleSave(recipe: Recipe) {
 		const resp = await fetch(`/api/recipe/${data.id}`, {

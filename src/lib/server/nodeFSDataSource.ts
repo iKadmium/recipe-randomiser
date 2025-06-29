@@ -39,7 +39,7 @@ export class NodeFSDataSource<T extends Named<K>, K extends string = 'name'>
 		if (id in all) {
 			return all[id];
 		}
-		throw new Error(`No data found for id: ${id}`);
+		return undefined;
 	}
 
 	public async post(data: T): Promise<void> {

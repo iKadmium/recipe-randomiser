@@ -1,4 +1,4 @@
-import type { Database } from './models/database';
+import { getDatabaseEntries, type Database } from './models/database';
 import { Difficulty, type Recipe } from './models/recipe';
 import { getRandomWithPenalty, toUTCIsoString } from './util';
 
@@ -48,7 +48,7 @@ export function getMealForDate(
 		(takeoutDate) => toUTCIsoString(takeoutDate) === dateString
 	);
 
-	const allRecipes = Object.values(recipes);
+	const allRecipes = getDatabaseEntries(recipes).map(([_, recipe]) => recipe);
 	const easyRecipes = allRecipes.filter((recipe) => recipe.difficulty === Difficulty.Easy);
 	const mediumRecipes = allRecipes.filter((recipe) => recipe.difficulty === Difficulty.Medium);
 	const hardRecipes = allRecipes.filter((recipe) => recipe.difficulty === Difficulty.Hard);

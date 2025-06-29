@@ -2,6 +2,6 @@ import { takeoutDataSource } from '$lib/server';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => {
-	const data = await takeoutDataSource.getAll();
-	return data;
+	const takeouts = await takeoutDataSource.getAll();
+	return { takeouts };
 };

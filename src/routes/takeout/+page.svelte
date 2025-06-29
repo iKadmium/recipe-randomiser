@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { Button } from '@sveltestrap/sveltestrap';
-	import type { PageData } from './$types';
 	import CardDeck from '../../components/CardDeck.svelte';
 	import TakeoutListItem from '../../components/TakeoutListItem.svelte';
+	import type { PageProps } from './$types';
+	import { getDatabaseEntries } from '$lib/models/database';
 
 	async function handleDelete(key: string) {
 		const resp = await fetch(`/api/takeout/${key}`, {
@@ -12,8 +13,7 @@
 			console.error('Failed to delete takeout:', resp.statusText);
 			return;
 		}
-		delete data[key];
-		data = data;
+		delete takeoutsRaw[key];
 	}
 
 	async function addTakeout() {
@@ -30,10 +30,13 @@
 			return;
 		}
 		const newTakeout = await resp.json();
-		data[newTakeout.id] = newTakeout;
+		takeoutsRaw[newTakeout.id] = newTakeout;
 	}
 
-	export let data: PageData;
+	let { data }: PageProps = $props();
+
+	let takeoutsRaw = $state(data.takeouts);
+	let takeouts = $derived(getDatabaseEntries(takeoutsRaw));
 </script>
 
 <h1>Takeouts</h1>
@@ -41,7 +44,7 @@
 <Button color="primary" on:click={() => addTakeout()}>New takeout</Button>
 
 <CardDeck>
-	{#each Object.entries(data) as [key, takeout] (key)}
+	{#each takeouts as [key, takeout] (key)}
 		<TakeoutListItem {takeout} {key} onDelete={() => handleDelete(key)} />
 	{/each}
 </CardDeck>

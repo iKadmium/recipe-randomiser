@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { Button } from '@sveltestrap/sveltestrap';
-	import RecipeListItem from '../../components/RecipeListItem.svelte';
-	import type { PageData } from './$types';
 	import CardDeck from '../../components/CardDeck.svelte';
+	import RecipeListItem from '../../components/RecipeListItem.svelte';
+	import type { PageProps } from './$types';
+	import { getDatabaseEntries } from '$lib/models/database';
 
 	async function handleDelete(key: string) {
 		const resp = await fetch(`/api/recipe/${key}`, {
@@ -12,11 +13,17 @@
 			console.error('Failed to delete recipe:', resp.statusText);
 			return;
 		}
-		delete data[key];
-		data = data;
+		delete recipesRaw[key];
 	}
 
-	export let data: PageData;
+	let { data }: PageProps = $props();
+
+	let recipesRaw = $state(data.recipes);
+	let recipes = $derived(
+		getDatabaseEntries(recipesRaw).toSorted(([_keyA, recipeA], [_keyB, recipeB]) => {
+			return recipeA.name.localeCompare(recipeB.name);
+		})
+	);
 </script>
 
 <h1>Recipes</h1>
@@ -24,7 +31,7 @@
 <Button color="primary" href="/recipes/new">New Recipe</Button>
 
 <CardDeck>
-	{#each Object.entries(data) as [key, recipe] (key)}
+	{#each recipes as [key, recipe] (key)}
 		<RecipeListItem {recipe} {key} onDelete={() => handleDelete(key)} />
 	{/each}
 </CardDeck>
