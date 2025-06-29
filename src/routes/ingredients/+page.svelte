@@ -31,6 +31,7 @@
 	<thead>
 		<tr>
 			<th>Name</th>
+			<th>Unit</th>
 			<th>Actions</th>
 		</tr>
 	</thead>
@@ -38,6 +39,7 @@
 		{#each ingredients as [key, ingredient] (key)}
 			<tr>
 				<td>{ingredient.name}</td>
+				<td>{ingredient.unit}</td>
 				<td>
 					<ButtonGroup>
 						<Button href={`/ingredients/${key}`} color="warning">

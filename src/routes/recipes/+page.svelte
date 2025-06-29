@@ -2,6 +2,7 @@
 	import { getDatabaseEntries } from '$lib/models/database';
 	import { Button, ButtonGroup, Icon, Table } from '@sveltestrap/sveltestrap';
 	import type { PageProps } from './$types';
+	import { Difficulty } from '$lib/models/recipe';
 
 	async function handleDelete(key: string) {
 		const resp = await fetch(`/api/recipe/${key}`, {
@@ -32,6 +33,8 @@
 	<thead>
 		<tr>
 			<th>Name</th>
+			<th class="d-none d-lg-table-cell">Difficulty</th>
+			<th class="d-none d-lg-table-cell">Tags</th>
 			<th>Actions</th>
 		</tr>
 	</thead>
@@ -39,6 +42,8 @@
 		{#each recipes as [key, recipe] (key)}
 			<tr>
 				<td>{recipe.name}</td>
+				<td class="d-none d-lg-table-cell">{Difficulty[recipe.difficulty]}</td>
+				<td class="d-none d-lg-table-cell">{recipe.tags.join(', ')}</td>
 				<td>
 					<ButtonGroup>
 						<Button href={`/recipes/${key}`} color="warning">
