@@ -6,7 +6,7 @@ export type Named<K extends string = 'name'> = {
 
 export interface DataSource<T extends Named<K>, K extends string = 'name'> {
 	getAll(): Promise<Database<T>>;
-	get(id: string): Promise<T>;
+	get(id: string): Promise<T | undefined>;
 	post(data: T): Promise<void>;
 	put(key: string, data: T): Promise<void>;
 	delete(key: string): Promise<void>;

@@ -7,5 +7,8 @@ export const load: PageServerLoad = async ({ params }) => {
 		ingredientsDataSource.getAll(),
 		tagsDataSource.getAll()
 	]);
+	if (!recipe) {
+		throw new Error(`Recipe with id ${params.id} not found`);
+	}
 	return { recipe, ingredients, tags, id: params.id };
 };

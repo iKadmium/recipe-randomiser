@@ -1,5 +1,5 @@
 <script lang="ts" module>
-	import type { Database } from '$lib/models/database';
+	import { getDatabaseEntries, type Database } from '$lib/models/database';
 
 	import type { Recipe } from '$lib/models/recipe';
 
@@ -16,7 +16,10 @@
 	let { recipes, onPick }: MealPickerProps = $props();
 
 	let inputRef = $state<HTMLInputElement | null>(null);
-	let allRecipes = $derived<string[]>(Object.values(recipes).map((recipe) => recipe.name));
+	let recipesRaw = $state(recipes);
+	let allRecipes = $derived<string[]>(
+		getDatabaseEntries(recipesRaw).map(([_key, value]) => value.name)
+	);
 
 	onMount(() => {
 		window.setTimeout(() => {

@@ -8,7 +8,7 @@
 </script>
 
 <script lang="ts">
-	import type { Database } from '$lib/models/database';
+	import { getDatabaseEntries, type Database } from '$lib/models/database';
 	import type { Ingredient } from '$lib/models/ingredient';
 	import { Difficulty, type IngredientWithAmount, type Recipe } from '$lib/models/recipe';
 	import type { Tag } from '$lib/models/tag';
@@ -22,12 +22,17 @@
 		onSave
 	}: RecipeEditorProps = $props();
 
-	let tags: Database<Tag> = $state(initialTags);
+	let tagsRaw: Database<Tag> = $state(initialTags);
+	let tags: string[] = $derived(getDatabaseEntries(tagsRaw).map(([_key, value]) => value.name));
 	let recipe: Recipe = $state(initialRecipe);
 	let isModalOpen = $state(false);
 	let amountInputRef: HTMLInputElement | null = $state(null);
 	let activeIngredient: { name: string; new: boolean } | null = $state(null);
 	let hasMaxPerMonth: boolean = $state(initialRecipe.maxPerMonth !== undefined);
+	let ingredientsRaw = $state(ingredients);
+	let ingredientNames: string[] = $derived(
+		getDatabaseEntries(ingredientsRaw).map(([_key, value]) => value.name)
+	);
 
 	function openModal(ingredient: typeof activeIngredient) {
 		isModalOpen = true;
@@ -97,13 +102,11 @@
 			ingredient: activeIngredient.name
 		});
 		amountInputRef.value = '';
-		recipe = recipe;
 		isModalOpen = false;
 	}
 
 	function handleExistingTagAdd(tag: string) {
 		recipe.tags.push(tag);
-		recipe = recipe;
 	}
 
 	async function handleNewTagAdd(tag: string) {
@@ -119,7 +122,6 @@
 			return;
 		}
 		recipe.tags.push(tag);
-		recipe = recipe;
 	}
 
 	function handleDeleteTagClick(tag: string) {
@@ -173,7 +175,7 @@
 	<AutoComplete
 		noun="tag"
 		allowAdd
-		options={Object.values(tags).map((x) => x.name)}
+		options={tags}
 		excludedOptions={recipe.tags}
 		onExistingAdd={(item) => handleExistingTagAdd(item)}
 		onNewAdd={(item) => handleNewTagAdd(item)}
@@ -207,7 +209,7 @@
 	</Table>
 
 	<AutoComplete
-		options={Object.values(ingredients).map((x) => x.name)}
+		options={ingredientNames}
 		allowAdd
 		noun="ingredient"
 		excludedOptions={recipe.ingredients.map((x) => x.ingredient)}

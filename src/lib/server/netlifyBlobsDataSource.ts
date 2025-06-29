@@ -3,13 +3,18 @@ import type { Database } from '../models/database';
 import type { DataSource, Named } from './types';
 
 export class NetlifyBlobsDataSource<T extends Named<K>, K extends string = 'name'>
-	implements DataSource<T, K> {
+	implements DataSource<T, K>
+{
 	private store: ReturnType<typeof getStore>;
 	private key: string;
 	private keyProperty: K;
 
 	public constructor(filename: string, keyProperty: K = 'name' as K) {
-		this.store = getStore('data');
+		this.store = getStore({
+			name: 'data',
+			siteID: process.env.NETLIFY_SITE_ID,
+			token: process.env.NETLIFY_BLOBS_STORE_TOKEN
+		});
 		this.key = filename.replace('.json', '');
 		this.keyProperty = keyProperty;
 	}
@@ -31,12 +36,12 @@ export class NetlifyBlobsDataSource<T extends Named<K>, K extends string = 'name
 		}
 	}
 
-	public async get(id: string): Promise<T> {
+	public async get(id: string): Promise<T | undefined> {
 		const all = await this.getAll();
 		if (id in all) {
 			return all[id];
 		}
-		throw new Error(`No data found for id: ${id}`);
+		return undefined;
 	}
 
 	public async post(data: T): Promise<void> {
