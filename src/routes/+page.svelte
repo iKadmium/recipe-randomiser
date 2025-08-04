@@ -16,15 +16,20 @@
 
 	let easyMealDays = $state<Date[]>([]);
 	let takeoutDays = $state<Date[]>([]);
+	let mealDays = $state<MealDate[]>([]);
+	let lastGeneratedKey = $state(''); // Track when we need to regenerate
 
 	$effect(() => {
 		easyMealDays = getEveryDay(startDate, endDate, 'Monday');
 		takeoutDays = [...getEveryDay(startDate, endDate, 'Friday'), getNextDay(startDate, 'Monday')];
+		
+		// Create a key to track when we need to regenerate meals
+		const newKey = `${startDate.getTime()}-${endDate.getTime()}-${data.recipes}`;
+		if (newKey !== lastGeneratedKey) {
+			mealDays = generateMeals(startDate, endDate, easyMealDays, takeoutDays, data.recipes);
+			lastGeneratedKey = newKey;
+		}
 	});
-
-	let mealDays = $derived(
-		generateMeals(startDate, endDate, easyMealDays, takeoutDays, data.recipes)
-	);
 
 	let dialogOpen = $state(false);
 	let activeMeal = $state<MealDate | null>(null);
@@ -54,9 +59,15 @@
 	}
 
 	function handleRandomiseClick(date: Date): void {
+		console.log('Randomising meal for date:', date);
 		const meal = mealDays.find((meal) => toUTCIsoString(meal.date) === toUTCIsoString(date));
+		console.log('Found meal:', meal);
 		if (meal) {
+			console.log('Meal before randomisation:', meal.meal);
 			meal.meal = getMealForDate(date, easyMealDays, takeoutDays, data.recipes, mealDays);
+			console.log('Meal after randomisation:', meal.meal);
+			// Trigger reactivity by reassigning the array
+			mealDays = [...mealDays];
 		}
 	}
 
