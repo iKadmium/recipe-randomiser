@@ -20,15 +20,18 @@
 	let lastGeneratedKey = $state(''); // Track when we need to regenerate
 
 	$effect(() => {
-		easyMealDays = getEveryDay(startDate, endDate, 'Monday');
-		takeoutDays = [...getEveryDay(startDate, endDate, 'Friday'), getNextDay(startDate, 'Monday')];
-		
 		// Create a key to track when we need to regenerate meals
-		const newKey = `${startDate.getTime()}-${endDate.getTime()}-${data.recipes}`;
+		const newKey = `${startDate.getTime()}-${endDate.getTime()}-${JSON.stringify(easyMealDays.map((d) => d.getTime()))}-${JSON.stringify(takeoutDays.map((d) => d.getTime()))}`;
 		if (newKey !== lastGeneratedKey) {
 			mealDays = generateMeals(startDate, endDate, easyMealDays, takeoutDays, data.recipes);
 			lastGeneratedKey = newKey;
 		}
+	});
+
+	// Initialize the days when start/end date changes
+	$effect(() => {
+		easyMealDays = getEveryDay(startDate, endDate, 'Monday');
+		takeoutDays = [...getEveryDay(startDate, endDate, 'Friday'), getNextDay(startDate, 'Monday')];
 	});
 
 	let dialogOpen = $state(false);
@@ -59,20 +62,22 @@
 	}
 
 	function handleRandomiseClick(date: Date): void {
-		console.log('Randomising meal for date:', date);
-		const meal = mealDays.find((meal) => toUTCIsoString(meal.date) === toUTCIsoString(date));
-		console.log('Found meal:', meal);
+		const meal = mealDays.find((meal) => {
+			const mealDateStr = toUTCIsoString(meal.date).split('T')[0];
+			const clickDateStr = toUTCIsoString(date).split('T')[0];
+			return mealDateStr === clickDateStr;
+		});
 		if (meal) {
-			console.log('Meal before randomisation:', meal.meal);
 			meal.meal = getMealForDate(date, easyMealDays, takeoutDays, data.recipes, mealDays);
-			console.log('Meal after randomisation:', meal.meal);
-			// Trigger reactivity by reassigning the array
-			mealDays = [...mealDays];
 		}
 	}
 
 	function handlePickClick(date: Date): void {
-		const meal = mealDays.find((meal) => toUTCIsoString(meal.date) === toUTCIsoString(date));
+		const meal = mealDays.find((meal) => {
+			const mealDateStr = toUTCIsoString(meal.date).split('T')[0];
+			const clickDateStr = toUTCIsoString(date).split('T')[0];
+			return mealDateStr === clickDateStr;
+		});
 		if (meal) {
 			activeMeal = meal;
 			dialogOpen = true;
@@ -80,7 +85,11 @@
 	}
 
 	function handleTakeoutClick(date: Date): void {
-		const meal = mealDays.find((meal) => toUTCIsoString(meal.date) === toUTCIsoString(date));
+		const meal = mealDays.find((meal) => {
+			const mealDateStr = toUTCIsoString(meal.date).split('T')[0];
+			const clickDateStr = toUTCIsoString(date).split('T')[0];
+			return mealDateStr === clickDateStr;
+		});
 		if (meal) {
 			const dateString = toUTCIsoString(date);
 			const isTakeoutDay = takeoutDays.some((day: Date) => toUTCIsoString(day) === dateString);
@@ -104,6 +113,8 @@
 	function handlePickMeal(meal: string): void {
 		if (activeMeal) {
 			activeMeal.meal = meal;
+			// Trigger reactivity by reassigning the array
+			mealDays = [...mealDays];
 		}
 		dialogOpen = false;
 	}
