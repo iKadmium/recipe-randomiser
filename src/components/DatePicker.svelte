@@ -1,12 +1,11 @@
 <script lang="ts">
-	import { toUTCIsoString } from '$lib/util';
-
+	import { Temporal } from '@js-temporal/polyfill';
 	import { Input } from '@sveltestrap/sveltestrap';
 
 	export interface DatePickerProps {
-		date: Date;
-		min?: Date;
-		max?: Date;
+		date: Temporal.PlainDate;
+		min?: Temporal.PlainDate;
+		max?: Temporal.PlainDate;
 		id: string;
 	}
 
@@ -17,11 +16,11 @@
 	type="date"
 	{id}
 	bind:value={
-		() => toUTCIsoString(date).split('T')[0],
+		() => date.toString(),
 		(v) => {
-			date = new Date(v);
+			date = Temporal.PlainDate.from(v);
 		}
 	}
-	min={min ? toUTCIsoString(min).split('T')[0] : undefined}
-	max={max ? toUTCIsoString(max).split('T')[0] : undefined}
+	min={min ? min.toString() : undefined}
+	max={max ? max.toString() : undefined}
 />

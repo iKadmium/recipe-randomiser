@@ -1,17 +1,23 @@
 <script lang="ts" module>
+	import { Temporal } from '@js-temporal/polyfill';
+
 	export interface DateListSelectorProps {
-		startDate: Date;
-		endDate: Date;
-		dates: Date[];
+		startDate: Temporal.PlainDate;
+		endDate: Temporal.PlainDate;
+		dates: Temporal.PlainDate[];
 		legend: string;
 	}
 </script>
 
 <script lang="ts">
-	import { toUTCIsoString } from '$lib/util';
 	import { FormGroup, Input, Button } from '@sveltestrap/sveltestrap';
 
-	let { dates = $bindable<Date[]>(), startDate, endDate, legend }: DateListSelectorProps = $props();
+	let {
+		dates = $bindable<Temporal.PlainDate[]>(),
+		startDate,
+		endDate,
+		legend
+	}: DateListSelectorProps = $props();
 </script>
 
 <FormGroup>
@@ -21,19 +27,21 @@
 			<div class="day">
 				<Input
 					type="date"
-					min={toUTCIsoString(startDate).split('T')[0]}
-					max={toUTCIsoString(endDate).split('T')[0]}
+					min={startDate.toString()}
+					max={endDate.toString()}
 					bind:value={
-						() => toUTCIsoString(day).split('T')[0],
-						(day) => {
-							dates[index] = new Date(day);
+						() => day.toString(),
+						(dayStr) => {
+							dates[index] = Temporal.PlainDate.from(dayStr);
 						}
 					}
 				/>
 				<Button color="danger" on:click={() => dates.splice(index, 1)}>Remove</Button>
 			</div>
 		{/each}
-		<Button color="primary" on:click={() => dates.push(new Date())}>Add Day</Button>
+		<Button color="primary" on:click={() => dates.push(Temporal.PlainDate.from('2025-01-01'))}
+			>Add Day</Button
+		>
 	</fieldset>
 </FormGroup>
 
