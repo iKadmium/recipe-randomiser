@@ -1,9 +1,10 @@
 <script lang="ts">
+	import { Temporal } from '@js-temporal/polyfill';
 	import { Button, FormGroup, Label, Modal, TabContent, TabPane } from '@sveltestrap/sveltestrap';
 
-	import { generateMeals, getMealForDate, type MealDate } from '$lib/meal-generator';
-	import { getShoppingList } from '$lib/shopping-list';
-	import { getEveryDay, getFirstDayOfNextMonth, getNextDay, toUTCIsoString } from '$lib/util';
+	import { generateMeals, getMealForDate, type MealDate } from '$lib/temporal-meal-generator';
+	import { getShoppingList } from '$lib/temporal-shopping-list';
+	import { getEveryDay, getFirstDayOfNextMonth, getNextDay, today } from '$lib/temporal-util';
 	import DateListSelector from '../components/DateListSelector.svelte';
 	import DatePicker from '../components/DatePicker.svelte';
 	import MealCalendar from '../components/MealCalendar.svelte';
@@ -14,21 +15,24 @@
 	let startDate = $state(getStartDate());
 	let endDate = $state(getEndDate());
 
-	let easyMealDays = $state<Date[]>([]);
-	let takeoutDays = $state<Date[]>([]);
+	let easyMealDays = $state<Temporal.PlainDate[]>([]);
+	let takeoutDays = $state<Temporal.PlainDate[]>([]);
 	let mealDays = $state<MealDate[]>([]);
 	let lastGeneratedKey = $state(''); // Track when we need to regenerate
 
 	$effect(() => {
-		easyMealDays = getEveryDay(startDate, endDate, 'Monday');
-		takeoutDays = [...getEveryDay(startDate, endDate, 'Friday'), getNextDay(startDate, 'Monday')];
-		
 		// Create a key to track when we need to regenerate meals
-		const newKey = `${startDate.getTime()}-${endDate.getTime()}-${data.recipes}`;
+		const newKey = `${startDate.toString()}-${endDate.toString()}-${JSON.stringify(easyMealDays.map((d) => d.toString()))}-${JSON.stringify(takeoutDays.map((d) => d.toString()))}`;
 		if (newKey !== lastGeneratedKey) {
 			mealDays = generateMeals(startDate, endDate, easyMealDays, takeoutDays, data.recipes);
 			lastGeneratedKey = newKey;
 		}
+	});
+
+	// Initialize the days when start/end date changes
+	$effect(() => {
+		easyMealDays = getEveryDay(startDate, endDate, 'Monday');
+		takeoutDays = [...getEveryDay(startDate, endDate, 'Friday'), getNextDay(startDate, 'Monday')];
 	});
 
 	let dialogOpen = $state(false);
@@ -36,58 +40,48 @@
 
 	let shoppingList = $derived(getShoppingList(mealDays, data.recipes, data.ingredients));
 
-	function getStartDate(): Date {
-		const today = new Date();
-		let firstSaturday = getFirstDayOfNextMonth(today, 'Saturday');
-		if (firstSaturday < today) {
-			const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+	function getStartDate(): Temporal.PlainDate {
+		const todayDate = today();
+		let firstSaturday = getFirstDayOfNextMonth(todayDate, 'Saturday');
+		if (Temporal.PlainDate.compare(firstSaturday, todayDate) < 0) {
+			const nextMonth = todayDate.with({ day: 1 }).add({ months: 1 });
 			firstSaturday = getFirstDayOfNextMonth(nextMonth, 'Saturday');
 		}
 
 		return firstSaturday;
 	}
 
-	function getEndDate(): Date {
-		const today = new Date();
-		const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+	function getEndDate(): Temporal.PlainDate {
+		const todayDate = today();
+		const nextMonth = todayDate.with({ day: 1 }).add({ months: 1 });
 		const firstSaturday = getFirstDayOfNextMonth(nextMonth, 'Saturday');
 
-		const dayBeforeFirstSaturday = new Date(firstSaturday);
-		dayBeforeFirstSaturday.setDate(firstSaturday.getDate() - 1);
-
-		return dayBeforeFirstSaturday;
+		return firstSaturday.subtract({ days: 1 });
 	}
 
-	function handleRandomiseClick(date: Date): void {
-		console.log('Randomising meal for date:', date);
-		const meal = mealDays.find((meal) => toUTCIsoString(meal.date) === toUTCIsoString(date));
-		console.log('Found meal:', meal);
+	function handleRandomiseClick(date: Temporal.PlainDate): void {
+		const meal = mealDays.find((meal) => meal.date.equals(date));
 		if (meal) {
-			console.log('Meal before randomisation:', meal.meal);
 			meal.meal = getMealForDate(date, easyMealDays, takeoutDays, data.recipes, mealDays);
-			console.log('Meal after randomisation:', meal.meal);
-			// Trigger reactivity by reassigning the array
-			mealDays = [...mealDays];
 		}
 	}
 
-	function handlePickClick(date: Date): void {
-		const meal = mealDays.find((meal) => toUTCIsoString(meal.date) === toUTCIsoString(date));
+	function handlePickClick(date: Temporal.PlainDate): void {
+		const meal = mealDays.find((meal) => meal.date.equals(date));
 		if (meal) {
 			activeMeal = meal;
 			dialogOpen = true;
 		}
 	}
 
-	function handleTakeoutClick(date: Date): void {
-		const meal = mealDays.find((meal) => toUTCIsoString(meal.date) === toUTCIsoString(date));
+	function handleTakeoutClick(date: Temporal.PlainDate): void {
+		const meal = mealDays.find((meal) => meal.date.equals(date));
 		if (meal) {
-			const dateString = toUTCIsoString(date);
-			const isTakeoutDay = takeoutDays.some((day: Date) => toUTCIsoString(day) === dateString);
+			const isTakeoutDay = takeoutDays.some((day) => day.equals(date));
 
 			if (meal.meal === 'Takeout') {
 				// Remove from takeout
-				takeoutDays = takeoutDays.filter((day: Date) => toUTCIsoString(day) !== dateString);
+				takeoutDays = takeoutDays.filter((day) => !day.equals(date));
 			} else {
 				// Add to takeout
 				if (!isTakeoutDay) {
@@ -104,6 +98,8 @@
 	function handlePickMeal(meal: string): void {
 		if (activeMeal) {
 			activeMeal.meal = meal;
+			// Trigger reactivity by reassigning the array
+			mealDays = [...mealDays];
 		}
 		dialogOpen = false;
 	}
@@ -166,7 +162,7 @@
 	<TabPane tabId="settings" tab="Settings">
 		<FormGroup>
 			<Label for="start-date">Start Date</Label>
-			<DatePicker id="start-date" bind:date={startDate} min={new Date()} />
+			<DatePicker id="start-date" bind:date={startDate} />
 		</FormGroup>
 		<FormGroup>
 			<Label for="end-date">End Date</Label>

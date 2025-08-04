@@ -1,6 +1,8 @@
 <script lang="ts" module>
+	import { Temporal } from '@js-temporal/polyfill';
+
 	export interface MealCalendarDayProps {
-		date: Date;
+		date: Temporal.PlainDate;
 		meal: string | undefined;
 		onRandomise: () => unknown | Promise<unknown>;
 		onPick: () => unknown | Promise<unknown>;
@@ -10,7 +12,6 @@
 
 <script lang="ts">
 	import { Button, ButtonGroup, Icon } from '@sveltestrap/sveltestrap';
-	import { format } from 'date-fns';
 
 	let { date, meal, onRandomise, onPick, onTakeout }: MealCalendarDayProps = $props();
 
@@ -19,7 +20,7 @@
 </script>
 
 <div class="day">
-	<div class="date">{format(date, 'd')}</div>
+	<div class="date">{date.day}</div>
 	{#if meal}
 		<div class="meal-container">
 			<span class="meal">{meal}</span>

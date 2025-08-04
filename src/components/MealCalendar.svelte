@@ -1,19 +1,18 @@
 <script lang="ts" module>
-	import type { MealDate } from '$lib/meal-generator';
+	import { Temporal } from '@js-temporal/polyfill';
+	import type { MealDate } from '$lib/temporal-meal-generator';
 
 	export interface MealCalendarProps {
 		mealDays: MealDate[];
-		startDate: Date;
-		endDate: Date;
-		onRandomiseClick: (date: Date) => unknown | Promise<unknown>;
-		onPickClick: (date: Date) => unknown | Promise<unknown>;
-		onTakeoutClick: (date: Date) => unknown | Promise<unknown>;
+		startDate: Temporal.PlainDate;
+		endDate: Temporal.PlainDate;
+		onRandomiseClick: (date: Temporal.PlainDate) => unknown | Promise<unknown>;
+		onPickClick: (date: Temporal.PlainDate) => unknown | Promise<unknown>;
+		onTakeoutClick: (date: Temporal.PlainDate) => unknown | Promise<unknown>;
 	}
 </script>
 
 <script lang="ts">
-	import { toUTCIsoString } from '$lib/util';
-	import { eachDayOfInterval, endOfWeek, startOfWeek } from 'date-fns';
 	import MealCalendarDay from './MealCalendarDay.svelte';
 
 	let {
@@ -25,19 +24,36 @@
 		onTakeoutClick
 	}: MealCalendarProps = $props();
 
-	let monthName = $derived(startDate.toLocaleDateString(undefined, { month: 'long' }));
+	let monthName = $derived(startDate.toLocaleString('en', { month: 'long' }));
 
 	const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 	let weeks = $derived(getWeeks(startDate, endDate));
 
-	function getWeeks(startDate: Date, endDate: Date): Date[][] {
-		const start = startOfWeek(startDate, { weekStartsOn: 0 });
-		const end = endOfWeek(endDate, { weekStartsOn: 0 });
-		const days = eachDayOfInterval({ start, end });
+	function getWeeks(
+		startDate: Temporal.PlainDate,
+		endDate: Temporal.PlainDate
+	): Temporal.PlainDate[][] {
+		// Find the start of the week containing startDate (Sunday = 7, so we want Sunday = 0)
+		const startDayOfWeek = startDate.dayOfWeek === 7 ? 0 : startDate.dayOfWeek;
+		const weekStart = startDate.subtract({ days: startDayOfWeek });
 
-		const weeks: Date[][] = [];
-		let week: Date[] = [];
+		// Find the end of the week containing endDate
+		const endDayOfWeek = endDate.dayOfWeek === 7 ? 0 : endDate.dayOfWeek;
+		const weekEnd = endDate.add({ days: 6 - endDayOfWeek });
+
+		// Generate all days from weekStart to weekEnd
+		const days: Temporal.PlainDate[] = [];
+		let currentDate = weekStart;
+
+		while (Temporal.PlainDate.compare(currentDate, weekEnd) <= 0) {
+			days.push(currentDate);
+			currentDate = currentDate.add({ days: 1 });
+		}
+
+		// Group into weeks of 7 days
+		const weeks: Temporal.PlainDate[][] = [];
+		let week: Temporal.PlainDate[] = [];
 
 		for (let i = 0; i < days.length; i++) {
 			week.push(days[i]);
@@ -63,10 +79,7 @@
 			<MealCalendarDay
 				{date}
 				meal={(() => {
-					const dateString = toUTCIsoString(date).split('T')[0];
-					const foundMeal = mealDays.find(
-						(meal) => toUTCIsoString(meal.date).split('T')[0] === dateString
-					);
+					const foundMeal = mealDays.find((meal) => meal.date.equals(date));
 					return foundMeal?.meal;
 				})()}
 				onRandomise={() => onRandomiseClick(date)}

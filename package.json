@@ -53,6 +53,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@js-temporal/polyfill": "^0.5.1",
 		"@netlify/blobs": "^10.0.2",
 		"@sveltestrap/sveltestrap": "^7.1.0",
 		"date-fns": "^4.1.0"
