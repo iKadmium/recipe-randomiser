@@ -39,7 +39,9 @@
 				<Button color="danger" on:click={() => dates.splice(index, 1)}>Remove</Button>
 			</div>
 		{/each}
-		<Button color="primary" on:click={() => dates.push(Temporal.PlainDate.from('2025-01-01'))}
+		<Button
+			color="primary"
+			on:click={() => dates.push(Temporal.PlainDate.from(Temporal.Now.plainDateISO()))}
 			>Add Day</Button
 		>
 	</fieldset>
